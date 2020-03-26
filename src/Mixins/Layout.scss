@@ -25,3 +25,14 @@
     height: 80%;
     background: linear-gradient(to bottom, transparent 0, $scroll-gradient-color 80%, $scroll-gradient-color 100%);
 }
+
+@mixin scrollArrowLink {
+    a {
+        position: relative;
+        img {
+            position: relative;
+            top: 60px;
+            z-index: 999;
+        }
+    }
+}

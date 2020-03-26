@@ -32,7 +32,7 @@ function MealOrderingModal(props) {
                         <Row>
                             <Col>
                                 <Focusable  onClickEnter={() => props.removeItem()}>
-                                    <img src={orderMinus}/>
+                                    <img onClick={() => props.removeItem()} src={orderMinus}/>
                                 </Focusable>
                             </Col>
                             <Col>
@@ -40,7 +40,7 @@ function MealOrderingModal(props) {
                             </Col>
                             <Col>
                                 <Focusable  onClickEnter={() => props.addItem()}>
-                                    <img src={orderPlus}/>
+                                    <img onClick={() => props.addItem()} src={orderPlus}/>
                                 </Focusable>
                             </Col>
                         </Row>
@@ -50,10 +50,10 @@ function MealOrderingModal(props) {
                 </Row>
                 <div  className="modalFocus" >
                     <Focusable onClickEnter={() => props.setIsModalSaveAndClose(props.menuItem)}>
-                        <button className="modal-save-button" onClick={() => props.setIsModalOpen(false)}>{props.modalButtonName}</button>
+                        <button className="modal-save-button" onClick={() => props.setIsModalSaveAndClose(props.menuItem)}>{props.modalButtonName}</button>
                     </Focusable>
                     <Focusable onClickEnter={() => props.setIsModalCancelAndClose(props.menuItem)}>
-                        <button className="modal-close-button" onClick={() => props.setIsModalOpen(false)}>Cancel</button>
+                        <button className="modal-close-button" onClick={() => props.setIsModalCancelAndClose(props.menuItem)}>Cancel</button>
                     </Focusable>
                 </div>
               </Dialog>

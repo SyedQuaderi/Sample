@@ -1,5 +1,5 @@
 import React, {CSSProperties, useEffect, useState, useRef, useReducer} from 'react';
-import './MealOrder.scss';
+import './Order.scss';
 import PES from '../globalVariables';
 import {
     BrowserRouter as Router,
@@ -83,7 +83,7 @@ function Order(props) {
             const selectMenuItem: HTMLCollectionOf<any> = document.getElementsByClassName("scrollitems")[0].children;
             if(modalButtonName) {
                 const menuItemIndex = meals.mealItems.findIndex(obj => {if(obj !==null) return obj.id === menuItemDetails.id});
-                menuItemFocus.current = selectMenuItem[menuItemIndex];
+                menuItemFocus.current = selectMenuItem[menuItemIndex + 1];
             }
             const element: HTMLCollectionOf<any> = document.getElementsByClassName("modalFocus");
             if(element[0].firstElementChild) {
@@ -118,7 +118,9 @@ function Order(props) {
         removeFocusFromBack[0].classList.add('focusable');
         const addFocusBackPlaceOrderBtn: HTMLCollectionOf<any> = document.getElementsByClassName("item-place-order")[0].children;
         addFocusBackPlaceOrderBtn[0].classList.add('focusable');
-        if(menuItemFocus.current !== null || menuItemFocus.current !== undefined) menuItemFocus.current.focus();
+        if(menuItemFocus.current !== null || menuItemFocus.current !== undefined) {
+            menuItemFocus.current.focus();
+        }
     }
 
     function setIsModalCancelAndClose(menuItem) {
@@ -157,6 +159,63 @@ function Order(props) {
             });   
         }
     }, [storeMeal]);
+    
+    var [scrollTopElement, scrollBottom]:any = [document.getElementById('section02'), document.getElementById('section01')];
+    const scrollItems:any = (document.getElementsByClassName('scrollitems') as HTMLCollectionOf<Element>);
+    
+    useEffect(()=>{
+        function scrollEvent(){
+            let insideScroll:number = 0;
+            for (var i=1; i <= scrollItems[0].children.length -2; i++) {
+                insideScroll += scrollItems[0].children[i].clientHeight;
+            }
+            if(insideScroll - scrollItems[0].scrollHeight ===  scrollItems[0].scrollTop) {
+                try {
+                    scrollTopElement.style.display = "none";
+                    scrollBottom.style.display = "block";
+                }
+                catch(error) {
+                    console.log(error);
+                }
+                
+            }
+            else if(insideScroll - scrollItems[0].scrollTop === scrollItems[0].clientHeight){
+                try {
+                    scrollBottom.style.display = "none";
+                    scrollTopElement.style.display = "block";
+                }
+                catch(error){
+                    console.log(error);
+                }
+            }
+        }
+        window.addEventListener("scroll", scrollEvent, true);
+        return () => {
+            window.removeEventListener("scroll", scrollEvent, true);
+        };
+    }, [scrollTopElement!== null]);
+
+    function scrollToBottom() {
+        scrollItems[0].scrollTo({
+            'behavior': 'smooth',
+            'left': 0,
+            'top': scrollItems[0].scrollHeight
+          });
+        scrollTopElement.style.display = "block";
+        scrollBottom.style.display = "none";
+        return false;
+    }
+
+    function scrollToTop() {
+        scrollItems[0].scrollTo({
+            'behavior': 'smooth',
+            'left': 0,
+            'top': scrollItems[0].offsetTop
+          });
+          scrollTopElement.style.display = "none";
+          scrollBottom.style.display = "block";
+        return false;
+    }
 
     const [caloriesProgressFlag, setCaloriesFlag] = useState<string>(moniter.left);
     const [proteinProgressFlag, setProteinFlag] = useState<string>(moniter.left);
@@ -253,24 +312,32 @@ function Order(props) {
             setOrderButtons(0);
         }
     }
-
+    var backIcon:any = document.getElementsByClassName('meal-ordering-home-icon')[0].children[0];
     function selectMealType(mealType) {
         setMealItems({mealItems: mealType.mealItems});
         setfocusOnMenuItem(mealType.id);
         setFlag(false);
+        backIcon.classList.add('focusable');
         const arrowDown: any  = document.getElementById('section01');
         if(mealType.mealItems.length <= 5) {
             arrowDown.style.display = "none";
         }
         else {
             arrowDown.style.display = "block";
+            scrollItems[0].scrollTo({
+                'top': scrollItems[0].offsetTop
+            });
         }
+    }
+
+    function removeFocusFromIcon(menuItem) {
+        backIcon.classList.remove('focusable');
     }
 
     function selectSubMealType (subMealType) {
         if(subMealType.id === focusOnMenuItem) {
             setFlag(true);
-            setBlurOnMenuItem(subMealType.id)
+            setBlurOnMenuItem(subMealType.id);
         }
         else {
             setFlag(false);
@@ -322,7 +389,7 @@ function Order(props) {
                         <Col xs lg="1" className="full-fixed-height">
                             <div className="meal-ordering-home-icon text-center">
                                 <Focusable onClickEnter={()=>goToHome(false, orderedList)} >
-                                    <FaChevronLeft />
+                                    <FaChevronLeft onClick={()=>goToHome(false, orderedList)}/>
                                 </Focusable>
                             </div>
                             <h3 className="session-type">Back</h3>
@@ -342,7 +409,9 @@ function Order(props) {
                             <Col sm={12} className="order-panel">
                                 <Row className="">
                                     <MenuItems meals={meals} setIsModalOpens={setIsModalOpens}
-                                             Focusable={Focusable} Row={Row} Col={Col} Button={Button}/>
+                                             Focusable={Focusable} Row={Row} Col={Col} Button={Button} 
+                                             scrollToBottom={scrollToBottom} scrollToTop={scrollToTop}
+                                             removeFocusFromIcon={removeFocusFromIcon}/>
                                     <Col sm={5} className="order-summary full-fixed-height">
                                         <Row>
                                             <Col className="order-section">
@@ -421,7 +490,7 @@ function Order(props) {
                                                         <Col>
                                                             {!isModalOpen ? (
                                                                 <Focusable onClickEnter={()=>toggleOrderButtons(orderedItem)}>
-                                                                    <Row className="order-wrapper">
+                                                                    <Row onClick={()=>toggleOrderButtons(orderedItem)} className="order-wrapper">
                                                                         <Col sm={2}>
                                                                             <h2 className="item-quantity">{orderedItem.quantity}</h2>
                                                                         </Col>
@@ -458,7 +527,7 @@ function Order(props) {
                                                             <Col sm={6} className="pl-0">
                                                                 {!isModalOpen ? (
                                                                     <Focusable onClickEnter={()=>changeOrderedQuantity(orderedItem)}>
-                                                                        <Button className="item-change-qty">Change Qty</Button>
+                                                                        <Button onClick={()=>changeOrderedQuantity(orderedItem)} className="item-change-qty">Change Qty</Button>
                                                                     </Focusable>
                                                                 ) : (
                                                                     <div onClick={()=>changeOrderedQuantity(orderedItem)}>
@@ -470,7 +539,7 @@ function Order(props) {
                                                             <Col sm={6} className="btn-custom-padding pr-0">
                                                                 {!isModalOpen ? (
                                                                     <Focusable onClickEnter={()=>deleteSelectedOrderedItem(orderedItem)}>
-                                                                        <Button className="item-remove">Remove</Button>
+                                                                        <Button onClick={()=>deleteSelectedOrderedItem(orderedItem)} className="item-remove">Remove</Button>
                                                                     </Focusable>
                                                                 ) : (
                                                                     <div onClick={()=>deleteSelectedOrderedItem(orderedItem)}>
@@ -488,7 +557,7 @@ function Order(props) {
                                         <Row>
                                             <Col sm={10} className="item-place-order">
                                                 <Focusable onClickEnter={()=>goToHome(true, props.mealMain)} >
-                                                    <Button className="item-order-button" disabled={orderedMenuItemsLength ? false : true}>Place</Button>
+                                                    <Button onClick={()=>goToHome(true, props.mealMain)} className={"item-order-button " + (orderedMenuItemsLength ? "" : "btn-disabled")} disabled={orderedMenuItemsLength ? false : true}>Place</Button>
                                                 </Focusable>
                                             </Col>
                                         </Row>

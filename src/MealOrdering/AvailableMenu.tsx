@@ -1,5 +1,4 @@
 import React, {useState, useEffect, useRef} from 'react';
-import SpatialNavigation, {FocusableSection, Focusable } from 'react-js-spatial-navigation';
 
 function AvailableMenu(props) {
     const [meal, setMeal] = useState<any>(false);
@@ -28,13 +27,13 @@ function AvailableMenu(props) {
 
     return (
         <props.Col sm={3} className="full-fixed-height white-filter meal-type-wrapper">
-            <div className="active">
-                <props.Row className="active">
+            <props.FocusableSection enterTo={'last-focused'}>
+                <props.Row>
                     {props.mealMain.mealCategory.map((item, i)=>
-                        <props.Col xs={12} key={i} className="meal-type remove-gutter ">
+                        <props.Col xs={12} key={i} className="meal-type remove-gutter last-focused">
                             <props.Focusable onUnfocus={()=>{props.selectSubMealType(item)}} onFocus={()=>{props.selectMealType(item)}}>
-                                <props.Button  className={"menu-category-btn" + (item.id === props.focusOnMenuItem && !props.flag ? " activity-button-active " : " activity-button-inactive")}>
-                                    <props.Row className=" ">
+                                <props.Button  onClick={()=>{props.selectMealType(item)}} className={"menu-category-btn" + (item.id === props.focusOnMenuItem && !props.flag ? " activity-button-active " : " activity-button-inactive")}>
+                                    <props.Row>
                                         <props.Col className="text-center" >
                                             <div className="">
                                                 <img src={item.image} className="round-thumbnail" />
@@ -51,7 +50,7 @@ function AvailableMenu(props) {
                         </props.Col>
                     )}
                 </props.Row>
-            </div>
+            </props.FocusableSection>
         </props.Col>
     )
 }
